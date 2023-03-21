@@ -6,7 +6,7 @@ TOKEN_PATH = ".token"
 
 
 def load_token(
-        username, password
+        username=None, password=None
         ):
     token = ""
     print("读取token文件中...")
