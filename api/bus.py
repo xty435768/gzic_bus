@@ -12,6 +12,14 @@ class Bus:
 
         self.session = session
         self.base_url = "https://life.gzic.scut.edu.cn/commute/open/commute"
+        # proxy = {
+        #     'http': 'http://127.0.0.1:7890',
+        #     'https': 'http://127.0.0.1:7890'
+        # }
+        # if not input('你准备用代理吗？输入N不使用代理，其他任意输入为使用代理：').upper() == 'N':
+        #     print('正在设置代理...', end='')
+        #     self.session.proxies.update(proxy)
+        #     print('完成！')
 
     def list_reserve(self, status=0, page_num=1, page_size=8):
         url = "{}/commuteOrder/orderFindAll?status={}&PageNum={}&PageSize={}".format(

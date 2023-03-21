@@ -1,7 +1,7 @@
 import questionary
 from cli.check import CheckReserveMenu
 from cli.console import reset_console
-from cli.reserve import ReserveBusMenu
+from cli.reserve import ReserveBusMenu, ListenBus
 from cli.token import load_token
 from api.bus import Bus
 from enum import Enum
@@ -12,6 +12,7 @@ class MenuState(Enum):
     RESERVE_BUS = 2
     CHECK_RESERVE = 3
     QUIT = 4
+    LISTEN = 5
 
 
 class Menu:
@@ -26,21 +27,23 @@ class Menu:
 
     def run(self):
         while self.state != MenuState.QUIT:
-            match self.state:
-                case MenuState.START:
-                    self.start_menu()
-                case MenuState.RESERVE_BUS:
-                    self.reserve_bus()
-                case MenuState.CHECK_RESERVE:
-                    self.check_reserve()
+            if self.state == MenuState.START:
+                self.start_menu()
+            elif self.state == MenuState.RESERVE_BUS:
+                self.reserve_bus()
+            elif self.state == MenuState.CHECK_RESERVE:
+                self.check_reserve()
+            elif self.state == MenuState.LISTEN:
+                self.listen()
 
         self.quit()
 
     def start_menu(self):
         reset_console()
 
-        menu = ["预约校巴", "查看已预约校巴", "退出"]
+        menu = ["监听模式", "预约校巴", "查看已预约校巴", "退出"]
         choice_state = [
+            MenuState.LISTEN,
             MenuState.RESERVE_BUS,
             MenuState.CHECK_RESERVE,
             MenuState.QUIT,
@@ -67,6 +70,16 @@ class Menu:
 
     def reserve_bus(self):
         reserve_menu = ReserveBusMenu(self.bus)
+        result = reserve_menu.run()
+
+        if result == 1:
+            self.change_state(MenuState.START)
+
+        else:
+            self.back_main_menu()
+
+    def listen(self):
+        reserve_menu = ListenBus(self.bus)
         result = reserve_menu.run()
 
         if result == 1:

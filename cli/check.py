@@ -21,21 +21,21 @@ class CheckReserveMenu:
 
     def run(self):
         while self.state != CheckState.QUIT:
-            match self.state:
-                case CheckState.LIST:
-                    is_quit = self.list_tickets()
 
-                    if is_quit:
-                        return 1
+            if self.state == CheckState.LIST:
+                is_quit = self.list_tickets()
 
-                case CheckState.DETAIL:
-                    self.get_ticket_detail()
+                if is_quit:
+                    return 1
 
-                case CheckState.CANCEL:
-                    self.cancel_ticket()
+            elif self.state == CheckState.DETAIL:
+                self.get_ticket_detail()
 
-                case CheckState.DELETE:
-                    self.delete_ticket()
+            elif self.state == CheckState.CANCEL:
+                self.cancel_ticket()
+
+            elif self.state == CheckState.DELETE:
+                self.delete_ticket()
 
         return 0
 

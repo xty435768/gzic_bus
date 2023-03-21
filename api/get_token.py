@@ -1,6 +1,7 @@
 import re
 import requests
 from api.des import str_enc
+from api.get_verification_code import get_verification_code
 
 
 def get_token(username: str, password: str):
@@ -14,11 +15,12 @@ def get_token(username: str, password: str):
 
     # This will be rediect to the login page
     redirect_login_page = session.get("https://life.gzic.scut.edu.cn/")
-
+    verification_code = get_verification_code(session)
     lt_pattern = re.compile(r'<input.+name="lt"\s+value="([^"]+)"')
     lt = re.search(lt_pattern, redirect_login_page.text).group(1)
 
     login_post_param = {
+        "code": str(verification_code),
         "ul": len(username),
         "pl": len(password),
         "lt": lt,
@@ -27,8 +29,8 @@ def get_token(username: str, password: str):
         "_eventId": "submit",
     }
 
-    session.post(url="https://sso.scut.edu.cn/cas/login", data=login_post_param)
-
+    res = session.post(url="https://sso.scut.edu.cn/cas/login", data=login_post_param)
+    # print(res.text)
     token = session.get("https://life.gzic.scut.edu.cn/auth/login/cas/token").json()
 
     return token["data"]
