@@ -319,8 +319,8 @@ class ListenBus:
                         list(item.values())[i] for i in [-1, -3, -2, -5, -4, -6]))
             print('余票：%d 张。' % total_available)
             if total_available > 0:
-                send_notice('有票了！！开始预定！')
                 self.ticket = available_bus[0]
+                send_notice('有票了！！开始预定！', str(self.ticket), '')
                 self.change_state(ReserveState.END)
                 return
             while count < refresh_time:
@@ -361,10 +361,11 @@ class ListenBus:
 
         if result["code"] == 200:
             print("预约成功，请到小程序查看二维码上车")
-            send_notice("预约成功！", str(self.ticket), '服务器回复：' + result['msg'])
+            send_notice("预约成功！", '服务器回复：' + result['msg'], '')
             self.change_state(ReserveState.QUIT)
 
         else:
             print("预约失败，请重试")
-            send_notice("预约失败！", str(self.ticket), '服务器回复：' + result['msg'])
+            print('服务器回复：' + result['msg'])
+            send_notice("预约失败！", '服务器回复：' + result['msg'], '')
             self.change_state(ReserveState.TIME)
