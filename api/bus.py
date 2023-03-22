@@ -11,6 +11,8 @@ class Bus:
         session.headers["Content-Type"] = "application/json"
 
         self.session = session
+        self.student_id = '2022xxxxxxxx'
+        self.student_name = '张三'
         self.base_url = "https://life.gzic.scut.edu.cn/commute/open/commute"
         # proxy = {
         #     'http': 'http://127.0.0.1:7890',
@@ -78,3 +80,11 @@ class Bus:
         result = self.ticket_detail(ticket_id)["data"]
 
         return {"id": result["id"], "frequencyId": result["frequencyId"]}
+    
+    def get_user_info(self):
+        res = self.session.get('https://life.gzic.scut.edu.cn/auth/info').json()['data']
+        self.student_id = res['account']
+        self.student_name = res['nickname']
+    
+    def show_user_info(self):
+        print('当前用户：%s（学号：%s）' % (self.student_name, self.student_id))

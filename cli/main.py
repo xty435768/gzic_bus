@@ -26,6 +26,7 @@ class Menu:
         self.bus = Bus(self.token)
 
     def run(self):
+        self.bus.get_user_info()
         while self.state != MenuState.QUIT:
             if self.state == MenuState.START:
                 self.start_menu()
@@ -40,7 +41,7 @@ class Menu:
 
     def start_menu(self):
         reset_console()
-
+        self.bus.show_user_info()
         menu = ["监听模式", "预约校巴", "查看已预约校巴", "退出"]
         choice_state = [
             MenuState.LISTEN,
