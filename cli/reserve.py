@@ -7,6 +7,7 @@ import time
 import os
 from api.autodl_notice import send_notice
 import threading
+import platform
 
 
 class ReserveState(Enum):
@@ -330,7 +331,10 @@ class ListenBus:
                 if self.abort_listen_flag:
                     stop = True
                     break
-            os.system('cls')
+            if platform.system() == 'Windows':
+                os.system('cls')
+            else:
+                os.system('clear')
             if stop:
                 break
         self.change_state(ReserveState.QUIT)
