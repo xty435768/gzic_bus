@@ -5,6 +5,7 @@ from cli.reserve import ReserveBusMenu, ListenBus
 from cli.token import load_token
 from api.bus import Bus
 from enum import Enum
+from api.autodl_notice import load_autodl_token, load_autodl_token_info
 
 
 class MenuState(Enum):
@@ -41,7 +42,10 @@ class Menu:
 
     def start_menu(self):
         reset_console()
+        if not load_autodl_token:
+            print('尝试导入autodl_token失败，失败信息：%s\nautodl通知服务将不会起作用' % load_autodl_token_info)
         self.bus.show_user_info()
+
         menu = ["监听模式", "预约校巴", "查看已预约校巴", "退出"]
         choice_state = [
             MenuState.LISTEN,
