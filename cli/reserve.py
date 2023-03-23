@@ -2,7 +2,7 @@ from enum import Enum
 from datetime import datetime, timedelta
 import questionary
 from api.bus import Bus
-import keyboard
+# import keyboard
 import time
 import os
 from api.autodl_notice import send_notice
@@ -204,7 +204,7 @@ class ListenBus:
     end_campus = ""
     date = ""
     ticket = {}
-    abort_listen_flag = False
+    # abort_listen_flag = False
 
     def __init__(self, bus: Bus) -> None:
         self.bus = bus
@@ -290,11 +290,12 @@ class ListenBus:
             self.default_date = self.date
             self.change_state(ReserveState.TIME)
     
-    def listen_keyboard(self):
-        while True:
-            if keyboard.is_pressed(' '):
-                break
-        self.abort_listen_flag = True
+    # 用空格键终止循环，已弃用
+    # def listen_keyboard(self):
+    #     while True:
+    #         if keyboard.is_pressed(' '):
+    #             break
+    #     self.abort_listen_flag = True
 
     def set_time(self):
         self.abort_listen_flag = False
@@ -309,49 +310,51 @@ class ListenBus:
         while not (listen_target.isdigit()):
             listen_target = input('输入有误，请重新输入！\n请输入想监听班次的编号（例如：123）：')
         listen_target = [today_bus_dict[int(i)] for i in listen_target if int(i) in today_bus_dict.keys()]
-        print('启动监听键盘输入线程...', end='')
-        thread = threading.Thread(target=self.listen_keyboard)
-        thread.daemon = True
-        thread.start()
-        print('完成！')
+        # print('启动监听键盘输入线程...', end='')
+        # thread = threading.Thread(target=self.listen_keyboard)
+        # thread.daemon = True
+        # thread.start()
+        # print('完成！')
         refresh_time = 5
-        
-        while True:
-            available_bus = list()
-            stop = False
-            count = 0
-            total_available = 0
-            bus_list = self.bus.get_bus_list(self.start_campus, self.end_campus, self.date)
+        try:
+            while True:
+                available_bus = list()
+                # stop = False
+                count = 0
+                total_available = 0
+                bus_list = self.bus.get_bus_list(self.start_campus, self.end_campus, self.date)
 
-            print("\n监听模式 ## ", end='')
-            now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            print("当前时间：", current_time)
-            print("按空格键退出循环")
-            print('余票\t出发地点\t\t到达地点\t出发时间\t到达时间\t日期')
-            for item in bus_list:
-                if item["startDate"] in listen_target:
-                    if int(list(item.values())[-1]) > 0:
-                        available_bus.append(item)
-                    total_available += int(list(item.values())[-1])
-                    print('%s\t%s\t%s\t%s\t\t%s\t\t%s' % tuple(
-                        list(item.values())[i] for i in [-1, -3, -2, -5, -4, -6]))
-            print('余票：%d 张。' % total_available)
-            if total_available > 0:
-                self.ticket = available_bus[0]
-                send_notice('有票了！！开始预定！', str(self.ticket), '')
-                self.change_state(ReserveState.END)
-                return
-            while count < refresh_time:
-                print('\r', refresh_time - count, '秒之后再查询')
-                time.sleep(1)
-                count += 1
-                if self.abort_listen_flag:
-                    stop = True
-                    break
-            clear()
-            if stop:
-                break
+                print("\n监听模式 ## ", end='')
+                now = datetime.now()
+                current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+                print("当前时间：", current_time)
+                print("按Ctrl+C退出监听循环")
+                print('余票\t出发地点\t\t到达地点\t出发时间\t到达时间\t日期')
+                for item in bus_list:
+                    if item["startDate"] in listen_target:
+                        if int(list(item.values())[-1]) > 0:
+                            available_bus.append(item)
+                        total_available += int(list(item.values())[-1])
+                        print('%s\t%s\t%s\t%s\t\t%s\t\t%s' % tuple(
+                            list(item.values())[i] for i in [-1, -3, -2, -5, -4, -6]))
+                print('余票：%d 张。' % total_available)
+                if total_available > 0:
+                    self.ticket = available_bus[0]
+                    send_notice('有票了！！开始预定！', str(self.ticket), '')
+                    self.change_state(ReserveState.END)
+                    return
+                while count < refresh_time:
+                    print('\r', refresh_time - count, '秒之后再查询')
+                    time.sleep(1)
+                    count += 1
+                    # if self.abort_listen_flag:
+                    #     stop = True
+                    #     break
+                clear()
+                # if stop:
+                #     break
+        except KeyboardInterrupt:
+            print('停止监听！')
         self.change_state(ReserveState.QUIT)
 
 
