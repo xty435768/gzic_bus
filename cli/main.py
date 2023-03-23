@@ -80,8 +80,8 @@ class Menu:
             self.back_main_menu()
 
     def listen(self):
-        reserve_menu = ListenBus(self.bus)
-        result = reserve_menu.run()
+        listen_menu = ListenBus(self.bus)
+        result = listen_menu.run()
 
         if result == 1:
             self.change_state(MenuState.START)

@@ -1,5 +1,5 @@
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timedelta
 import questionary
 from api.bus import Bus
 import keyboard
@@ -8,6 +8,8 @@ import os
 from api.autodl_notice import send_notice
 import threading
 import platform
+from cli.console import *
+from cli.utils import english_weekday_to_tuple
 
 
 class ReserveState(Enum):
@@ -262,13 +264,29 @@ class ListenBus:
             self.change_state(ReserveState.START_CAMPUS)
 
     def set_date(self):
-        self.date = questionary.text(
-            "请输入查询日期，格式为：yyyy/mm/dd（空字符串则返回）", default=self.default_date
-        ).ask()
-
-        if not self.date:
+        today = datetime.today()
+        date_dict = dict()
+        print('请从如下日期中选择：\n')
+        print('编号\t日期\t\t星期')
+        for i in range(8):
+            current_date = today + timedelta(days=i)
+            formatted_date = current_date.strftime('%Y/%m/%d')
+            weekday = current_date.strftime('%A')
+            chinese_day, day_id = english_weekday_to_tuple[weekday]
+            if i == 7:
+                day_id += 10
+            date_dict[day_id] = formatted_date
+            print(f"{day_id}\t{formatted_date}\t{chinese_day}")
+        # self.date = questionary.text(
+        #     "请输入查询日期，格式为：yyyy/mm/dd（空字符串则返回）", default=self.default_date
+        # ).ask()
+        user_choice = input('\n请输入选择日期编号（输入123返回）：')
+        while not user_choice.isdigit() or not (int(user_choice) in list(date_dict.keys()) + [123]):
+            user_choice = input('输入有误，请重新输入！\n请输入选择日期编号（输入123返回）：')
+        if user_choice == '123':
             self.change_state(ReserveState.END_CAMPUS)
         else:
+            self.date = date_dict[int(user_choice)]
             self.default_date = self.date
             self.change_state(ReserveState.TIME)
     
@@ -331,10 +349,7 @@ class ListenBus:
                 if self.abort_listen_flag:
                     stop = True
                     break
-            if platform.system() == 'Windows':
-                os.system('cls')
-            else:
-                os.system('clear')
+            clear()
             if stop:
                 break
         self.change_state(ReserveState.QUIT)
